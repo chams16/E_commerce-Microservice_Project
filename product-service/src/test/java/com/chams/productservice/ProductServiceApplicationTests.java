@@ -1,7 +1,9 @@
 package com.chams.productservice;
 
 import com.chams.productservice.dto.ProductRequest;
+import com.chams.productservice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +34,7 @@ class ProductServiceApplicationTests {
 
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
+    private final ProductRepository productRepository;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry){
@@ -46,7 +49,7 @@ class ProductServiceApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(StringProductRequest))
                 .andExpect(status().isCreated());
-
+        Assertions.assertEquals(1,productRepository.findAll().size());
     }
 
     private ProductRequest getProductRequest(){
