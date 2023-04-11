@@ -1,4 +1,4 @@
-package com.chams.discovery_server;
+package com.chams.discoveryserver;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
