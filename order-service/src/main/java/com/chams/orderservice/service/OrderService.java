@@ -1,5 +1,6 @@
 package com.chams.orderservice.service;
 
+import com.chams.orderservice.dto.InventoryResponse;
 import com.chams.orderservice.dto.OrderLineItemsDto;
 import com.chams.orderservice.dto.OrderRequest;
 import com.chams.orderservice.model.Order;
@@ -8,7 +9,9 @@ import com.chams.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final WebClient webClient;
 
     public void placeOrder(OrderRequest orderRequest){
         Order order = new Order();
@@ -27,7 +31,26 @@ public class OrderService {
                 .stream()
                 .map(this::mapToDto).collect(Collectors.toList());
         order.setOrderLineItems(orderLineItems);
-        orderRepository.save(order);
+
+        List<String> skuCodes = order.getOrderLineItems().stream()
+                .map(OrderLineItems::getSkuCode)
+                .collect(Collectors.toList());
+
+        //inventory call to check if product in stock
+        InventoryResponse[] result = webClient.get().uri("http://localhost:8086/api/inventory", uriBuilder -> uriBuilder.queryParam("skucode",skuCodes).build())
+                        .retrieve()
+                        .bodyToMono(InventoryResponse[].class)
+                        .block();
+
+        boolean allProductInStock = Arrays.stream(result).allMatch(InventoryResponse::isInStock);
+
+        if(allProductInStock){
+            orderRepository.save(order);
+        }else {
+            throw new IllegalArgumentException("Product is not in stock please try later");
+        }
+
+
     }
 
     private OrderLineItems mapToDto(OrderLineItemsDto orderLine) {
@@ -36,5 +59,6 @@ public class OrderService {
         orderLineItems.setQuantity(orderLine.getQuantity());
         orderLineItems.setSkuCode(orderLine.getSkuCode());
         return orderLineItems;
+
     }
 }
