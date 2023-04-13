@@ -11,9 +11,11 @@
         <module name="product-service" />
         <module name="order-service" />
         <module name="inventory-service" />
+        <module name="api_gateway" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="api_gateway" target="11" />
       <module name="discovery_server" target="11" />
       <module name="inventory-service" target="11" />
       <module name="order-service" target="11" />
@@ -22,6 +24,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api_gateway" options="-parameters" />
       <module name="discovery_server" options="-parameters" />
       <module name="inventory-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
