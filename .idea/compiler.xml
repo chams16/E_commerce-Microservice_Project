@@ -12,12 +12,14 @@
         <module name="order-service" />
         <module name="inventory-service" />
         <module name="api_gateway" />
+        <module name="notification-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="api_gateway" target="11" />
       <module name="discovery_server" target="11" />
       <module name="inventory-service" target="11" />
+      <module name="notification-service" target="11" />
       <module name="order-service" target="11" />
       <module name="product-service" target="11" />
     </bytecodeTargetLevel>
@@ -27,6 +29,7 @@
       <module name="api_gateway" options="-parameters" />
       <module name="discovery_server" options="-parameters" />
       <module name="inventory-service" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
       <module name="product-service" options="-parameters" />
     </option>

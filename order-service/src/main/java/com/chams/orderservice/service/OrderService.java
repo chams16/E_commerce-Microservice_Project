@@ -3,10 +3,12 @@ package com.chams.orderservice.service;
 import com.chams.orderservice.dto.InventoryResponse;
 import com.chams.orderservice.dto.OrderLineItemsDto;
 import com.chams.orderservice.dto.OrderRequest;
+import com.chams.orderservice.event.OrderPlaceEvent;
 import com.chams.orderservice.model.Order;
 import com.chams.orderservice.model.OrderLineItems;
 import com.chams.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,6 +25,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final WebClient.Builder webclientbuilder;
+    private final KafkaTemplate<String,OrderPlaceEvent> kafkaTemplate;
 
     public void placeOrder(OrderRequest orderRequest){
         Order order = new Order();
@@ -46,6 +49,7 @@ public class OrderService {
 
         if(allProductInStock){
             orderRepository.save(order);
+            kafkaTemplate.send("notificationTopic",new OrderPlaceEvent(order.getOrderNumber(),order.getOrderLineItems().stream().map(OrderLineItems::getSkuCode).collect(Collectors.toList()).toString()));
         }else {
             throw new IllegalArgumentException("Product is not in stock please try later");
         }
